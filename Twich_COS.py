@@ -54,6 +54,10 @@ class Bot(commands.Bot):
     @commands.command()
     async def hello(self, ctx: commands.Context):
         await ctx.send(f'Hello {ctx.author.name}!')
+    
+    async def logout(self):
+        await super().close()
+        self.is_running = False
 
 
 async def bot_run(settings):
@@ -71,7 +75,7 @@ async def stop_halt():
     global bot
     print("Stopping bot...")
     if bot:
-        await bot.close()
+        await bot.logout()
         bot = None
 
 
@@ -83,9 +87,10 @@ def start_bot(settings):
 
 def stop_bot():
     global bot_thread
-    print("Stopping bot...")
-    bot_thread = threading.Thread(target=asyncio.run, args=(stop_halt(),), name='BotThread')
-    bot_thread.join()
+    global bot
+    bot.loop.create_task(bot.logout())
+
+
 
 
 # -------------------------------------------------------------
